@@ -9,13 +9,34 @@ export interface AnalysisResult {
   summary: string;
 }
 
+// Helper to robustly extract JSON from Markdown code blocks or raw text
+const cleanJson = (text: string): string => {
+  // 1. Try to find a code block with 'json' language identifier
+  const jsonBlockMatch = text.match(/```json\s*([\s\S]*?)\s*```/i);
+  if (jsonBlockMatch) return jsonBlockMatch[1].trim();
+
+  // 2. Try to find any code block
+  const codeBlockMatch = text.match(/```\s*([\s\S]*?)\s*```/);
+  if (codeBlockMatch) return codeBlockMatch[1].trim();
+
+  // 3. Fallback: try to find the first '{' and the last '}'
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+  
+  if (firstBrace !== -1 && lastBrace !== -1) {
+    return text.substring(firstBrace, lastBrace + 1);
+  }
+
+  return text.trim();
+};
+
 export const analyzeReport = async (description: string): Promise<AnalysisResult> => {
   const schema: Schema = {
     type: Type.OBJECT,
     properties: {
       category: {
         type: Type.STRING,
-        description: "The best category for the urban issue (e.g., Limpeza, Infraestrutura, Iluminação, Jardinagem).",
+        description: "The best category for the urban issue (e.g., Limpeza Urbana, Infraestrutura, Iluminação, Jardinagem).",
       },
       priority: {
         type: Type.STRING,
@@ -44,7 +65,7 @@ export const analyzeReport = async (description: string): Promise<AnalysisResult
     const text = response.text;
     if (!text) throw new Error("No response from AI");
     
-    return JSON.parse(text) as AnalysisResult;
+    return JSON.parse(cleanJson(text)) as AnalysisResult;
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
     // Fallback if AI fails
@@ -87,7 +108,7 @@ export const generateSystemUpdate = async (command: string, currentConfig: Syste
     const text = response.text;
     if (!text) throw new Error("No response from AI");
     
-    return JSON.parse(text) as SystemConfig;
+    return JSON.parse(cleanJson(text)) as SystemConfig;
   } catch (error) {
     console.error("Gemini DevOps Error:", error);
     return currentConfig; // Return original config on error

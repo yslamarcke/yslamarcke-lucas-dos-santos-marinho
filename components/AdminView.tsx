@@ -5,7 +5,8 @@ import { MOCK_ADMIN } from '../constants';
 import { Button } from './Button';
 import { generateSystemUpdate } from '../services/geminiService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { ShieldCheck, Wallet, Users, Activity, Lock, Unlock, DollarSign, Building, AlertCircle, Settings, FileText, Download, Calendar, Home, ArrowLeft, Terminal, Save, RefreshCw, Power, Bot, Sparkles, Command } from 'lucide-react';
+import { ShieldCheck, Wallet, Users, Activity, Lock, Unlock, DollarSign, Building, AlertCircle, Settings, FileText, Download, Calendar, Home, ArrowLeft, Terminal, Save, RefreshCw, Power, Bot, Sparkles, Command, Share2, Smartphone, Globe, Link as LinkIcon, Check, Copy } from 'lucide-react';
+import { ShareButton } from './ShareButton';
 
 interface AdminViewProps {
   currentUser: AdminUser | null;
@@ -30,12 +31,16 @@ export const AdminView: React.FC<AdminViewProps> = ({
 }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'financial' | 'clients' | 'contracts' | 'system'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'financial' | 'clients' | 'contracts' | 'system' | 'deploy'>('overview');
 
   // Config Form State
   const [configForm, setConfigForm] = useState<SystemConfig>(systemConfig);
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployLogs, setDeployLogs] = useState<string[]>([]);
+  
+  // Link Gen State
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   
   // AI Command State
   const [aiCommand, setAiCommand] = useState('');
@@ -89,6 +94,21 @@ export const AdminView: React.FC<AdminViewProps> = ({
     const current = new Date().getTime() - start.getTime();
     const percentage = Math.min(100, Math.max(0, (current / total) * 100));
     return percentage;
+  };
+
+  const handleGenerateLink = () => {
+    setIsGeneratingLink(true);
+    // Simulate generation delay
+    setTimeout(() => {
+      setGeneratedLink(window.location.href);
+      setIsGeneratingLink(false);
+      addToast("Link oficial gerado com sucesso!", "success");
+    }, 1500);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    addToast("Link copiado para a área de transferência!", "success");
   };
 
   // --- AI COMMAND EXECUTION ---
@@ -319,6 +339,13 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 ${activeTab === 'system' ? 'bg-slate-800 text-white shadow-md translate-x-1' : 'bg-white text-slate-600 hover:bg-slate-50 border border-transparent'}`}
               >
                  <Bot className="w-5 h-5" /> Sistema & IA
+              </button>
+              <button 
+                onClick={() => setActiveTab('deploy')} 
+                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all flex items-center gap-3
+                ${activeTab === 'deploy' ? 'bg-emerald-600 text-white shadow-md translate-x-1' : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-transparent'}`}
+              >
+                 <Globe className="w-5 h-5" /> Publicação (Go Live)
               </button>
            </div>
 
@@ -725,6 +752,77 @@ export const AdminView: React.FC<AdminViewProps> = ({
                          </div>
                       </div>
                    </div>
+                </div>
+              )}
+
+              {activeTab === 'deploy' && (
+                <div className="animate-fade-in">
+                  <h3 className="text-2xl font-bold text-slate-800 mb-6">Publicação e Compartilhamento</h3>
+                  
+                  <div className="bg-white p-8 rounded-xl border border-slate-200 text-center mb-8 shadow-sm">
+                     <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Globe className="w-10 h-10 text-emerald-600" />
+                     </div>
+                     <h2 className="text-xl font-bold text-slate-800">Seu App está Online!</h2>
+                     <p className="text-slate-500 mb-6">Utilize o link abaixo para compartilhar com prefeituras e cidadãos.</p>
+                     
+                     {!generatedLink ? (
+                        <Button 
+                           onClick={handleGenerateLink} 
+                           className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg mx-auto"
+                           disabled={isGeneratingLink}
+                        >
+                           {isGeneratingLink ? (
+                              <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Gerando Link Seguro...</>
+                           ) : (
+                              <><LinkIcon className="w-4 h-4 mr-2" /> Gerar Link Oficial de Download</>
+                           )}
+                        </Button>
+                     ) : (
+                        <div className="flex justify-center max-w-xl mx-auto mb-6 animate-scale-in">
+                           <div className="flex-1 bg-slate-100 p-3 rounded-l-lg border border-emerald-300 font-mono text-sm overflow-hidden whitespace-nowrap text-ellipsis text-emerald-800 bg-emerald-50">
+                              {generatedLink}
+                           </div>
+                           <button 
+                              onClick={() => copyToClipboard(generatedLink)}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 rounded-r-lg font-bold flex items-center transition-colors"
+                           >
+                              <Copy className="w-4 h-4 mr-2" /> Copiar
+                           </button>
+                        </div>
+                     )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                           <Smartphone className="w-5 h-5" /> Instalação (PWA)
+                        </h4>
+                        <p className="text-sm text-slate-600 mb-4">
+                           Para oferecer uma experiência de aplicativo nativo, instrua seus usuários a:
+                        </p>
+                        <ol className="list-decimal list-inside text-sm text-slate-600 space-y-2 ml-2">
+                           <li>Abrir este link no <strong>Chrome</strong> (Android) ou <strong>Safari</strong> (iOS).</li>
+                           <li>Tocar no botão de menu do navegador.</li>
+                           <li>Selecionar <strong>"Adicionar à Tela Inicial"</strong>.</li>
+                        </ol>
+                     </div>
+
+                     <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                           <Globe className="w-5 h-5" /> Hospedagem Profissional
+                        </h4>
+                        <p className="text-sm text-slate-600 mb-4">
+                           Para mover este protótipo para um domínio próprio (ex: <strong>www.zelapb.com.br</strong>):
+                        </p>
+                        <ul className="list-disc list-inside text-sm text-slate-600 space-y-2 ml-2">
+                           <li>Exporte o código fonte.</li>
+                           <li>Crie uma conta na <strong>Vercel</strong> ou <strong>Netlify</strong>.</li>
+                           <li>Conecte seu repositório GitHub.</li>
+                           <li>O deploy será automático e gratuito.</li>
+                        </ul>
+                     </div>
+                  </div>
                 </div>
               )}
            </div>

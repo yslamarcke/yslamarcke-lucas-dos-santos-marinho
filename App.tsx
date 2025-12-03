@@ -77,6 +77,10 @@ const App: React.FC = () => {
     setTeamUsers([...teamUsers, newUser]);
   };
 
+  const handleRemoveTeamMember = (userId: string) => {
+    setTeamUsers(prev => prev.filter(u => u.id !== userId));
+  };
+
   // --- GOVERNMENT LOGIC ---
   const handleAddBroadcast = (title: string, message: string, target: 'citizens' | 'teams' | 'all', priority: 'Normal' | 'Urgent') => {
     if (!currentGovUser) return;
@@ -199,7 +203,6 @@ const App: React.FC = () => {
             onLogout={() => setCurrentTeamUser(null)}
             instructions={teamInstructions}
             onAddInstruction={handleAddInstruction}
-            onRegisterMember={handleRegisterTeamMember}
             addToast={addToast}
             broadcasts={broadcasts}
           />
@@ -214,6 +217,9 @@ const App: React.FC = () => {
             broadcasts={broadcasts}
             onAddBroadcast={handleAddBroadcast}
             addToast={addToast}
+            allTeamUsers={teamUsers}
+            onRegisterMember={handleRegisterTeamMember}
+            onRemoveMember={handleRemoveTeamMember}
           />
         );
       case 'admin':

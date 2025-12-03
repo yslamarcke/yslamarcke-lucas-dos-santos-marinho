@@ -1,11 +1,10 @@
-
 import React, { useState, useMemo } from 'react';
-import { Report, GovernmentUser, BroadcastMessage } from '../types';
+import { Report, GovernmentUser, BroadcastMessage, TeamUser, TeamSpecialty } from '../types';
 import { MOCK_GOV_USERS } from '../constants';
 import { Button } from './Button';
 import { ShareButton } from './ShareButton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { TrendingUp, AlertCircle, Building, Lock, LogOut, Radio, Send, Users, Megaphone, AlertTriangle, ArrowRight, Banknote } from 'lucide-react';
+import { TrendingUp, AlertCircle, Building, Lock, LogOut, Radio, Send, Users, Megaphone, AlertTriangle, ArrowRight, Banknote, UserPlus, Trash2, Briefcase } from 'lucide-react';
 
 interface CityHallViewProps {
   reports: Report[];
@@ -15,6 +14,9 @@ interface CityHallViewProps {
   broadcasts: BroadcastMessage[];
   onAddBroadcast: (title: string, message: string, target: 'citizens' | 'teams' | 'all', priority: 'Normal' | 'Urgent') => void;
   addToast: (msg: string, type: 'success' | 'error' | 'info') => void;
+  allTeamUsers: TeamUser[];
+  onRegisterMember: (user: TeamUser) => void;
+  onRemoveMember: (id: string) => void;
 }
 
 const COLORS = ['#059669', '#0284c7', '#d97706', '#dc2626'];
@@ -23,23 +25,33 @@ export const CityHallView: React.FC<CityHallViewProps> = ({
   reports, 
   currentUser, 
   onLogin, 
-  onLogout,
+  onLogout, 
   broadcasts,
   onAddBroadcast,
-  addToast
+  addToast,
+  allTeamUsers,
+  onRegisterMember,
+  onRemoveMember
 }) => {
   // Login State
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   // Dashboard State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'comms'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'comms' | 'team_mgmt'>('dashboard');
   
   // Broadcast Form State
   const [bcTitle, setBcTitle] = useState('');
   const [bcMessage, setBcMessage] = useState('');
   const [bcTarget, setBcTarget] = useState<'citizens' | 'teams' | 'all'>('citizens');
   const [bcPriority, setBcPriority] = useState<'Normal' | 'Urgent'>('Normal');
+
+  // Team Mgmt Form State
+  const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberUser, setNewMemberUser] = useState('');
+  const [newMemberPass, setNewMemberPass] = useState('');
+  const [newMemberRole, setNewMemberRole] = useState<'leader' | 'member'>('member');
+  const [newMemberSpecialty, setNewMemberSpecialty] = useState<TeamSpecialty>('Limpeza Urbana');
 
   // Compute Stats
   const stats = useMemo(() => {
@@ -96,6 +108,24 @@ export const CityHallView: React.FC<CityHallViewProps> = ({
       setBcMessage('');
       addToast('Comunicado enviado com sucesso!', 'success');
     }
+  };
+
+  const handleRegisterMember = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newUser: TeamUser = {
+      id: Date.now().toString(),
+      name: newMemberName,
+      username: newMemberUser,
+      password: newMemberPass,
+      role: newMemberRole,
+      specialty: newMemberSpecialty
+    };
+
+    onRegisterMember(newUser);
+    setNewMemberName('');
+    setNewMemberUser('');
+    setNewMemberPass('');
+    addToast(`${newMemberRole === 'leader' ? 'Líder' : 'Funcionário'} cadastrado com sucesso!`, 'success');
   };
 
   // --- LOGIN SCREEN ---
@@ -181,6 +211,14 @@ export const CityHallView: React.FC<CityHallViewProps> = ({
               Monitoramento
             </button>
             <button 
+              onClick={() => setActiveTab('team_mgmt')}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors
+                ${activeTab === 'team_mgmt' ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+              <Users className="w-5 h-5" />
+              Gestão de Equipes
+            </button>
+            <button 
               onClick={() => setActiveTab('comms')}
               className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors
                 ${activeTab === 'comms' ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'}`}
@@ -207,7 +245,9 @@ export const CityHallView: React.FC<CityHallViewProps> = ({
         <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
            <div>
              <h1 className="text-xl font-bold text-gray-800">
-               {activeTab === 'dashboard' ? 'Centro de Comando' : 'Central de Comunicação'}
+               {activeTab === 'dashboard' && 'Centro de Comando'}
+               {activeTab === 'team_mgmt' && 'Gestão de Recursos Humanos'}
+               {activeTab === 'comms' && 'Central de Comunicação'}
              </h1>
              <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full mt-1 inline-block">
                {new Date().toLocaleDateString()}
@@ -315,6 +355,135 @@ export const CityHallView: React.FC<CityHallViewProps> = ({
                </div>
             </div>
           </>
+        )}
+
+        {activeTab === 'team_mgmt' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+             {/* Register Form */}
+             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h3 className="font-bold text-gray-800 mb-4 flex items-center">
+                  <UserPlus className="w-5 h-5 mr-2 text-gray-600" />
+                  Cadastrar Novo Funcionário
+                </h3>
+                <form onSubmit={handleRegisterMember} className="space-y-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase">Nome Completo</label>
+                    <input 
+                      type="text" required
+                      className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 mt-1"
+                      value={newMemberName} onChange={e => setNewMemberName(e.target.value)}
+                      placeholder="Ex: João da Silva"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                     <div>
+                       <label className="text-xs font-bold text-gray-500 uppercase">Cargo</label>
+                       <select 
+                         className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 mt-1"
+                         value={newMemberRole}
+                         onChange={e => setNewMemberRole(e.target.value as 'leader' | 'member')}
+                       >
+                         <option value="member">Membro (Operacional)</option>
+                         <option value="leader">Líder de Equipe</option>
+                       </select>
+                     </div>
+                     <div>
+                       <label className="text-xs font-bold text-gray-500 uppercase">Especialidade</label>
+                       <select 
+                         className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 mt-1"
+                         value={newMemberSpecialty}
+                         onChange={e => setNewMemberSpecialty(e.target.value as TeamSpecialty)}
+                       >
+                         <option value="Limpeza Urbana">Limpeza Urbana</option>
+                         <option value="Infraestrutura">Infraestrutura</option>
+                         <option value="Iluminação">Iluminação</option>
+                         <option value="Geral">Geral</option>
+                       </select>
+                     </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 uppercase">Login (Usuário)</label>
+                      <input 
+                        type="text" required
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 mt-1"
+                        value={newMemberUser} onChange={e => setNewMemberUser(e.target.value)}
+                        placeholder="Ex: joao.silva"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 uppercase">Senha</label>
+                      <input 
+                        type="text" required
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 mt-1"
+                        value={newMemberPass} onChange={e => setNewMemberPass(e.target.value)}
+                        placeholder="Ex: 123456"
+                      />
+                    </div>
+                  </div>
+                  
+                  <Button type="submit" fullWidth className="bg-gray-800 hover:bg-gray-900 text-white mt-4">
+                    Cadastrar no Sistema
+                  </Button>
+                </form>
+             </div>
+
+             {/* Team List */}
+             <div>
+                <h3 className="font-bold text-gray-800 mb-4">Quadro de Funcionários ({allTeamUsers.length})</h3>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                   <div className="max-h-[500px] overflow-y-auto">
+                      {allTeamUsers.length === 0 ? (
+                        <p className="text-gray-400 text-center py-8">Nenhum funcionário cadastrado.</p>
+                      ) : (
+                        <table className="w-full text-sm text-left">
+                           <thead className="bg-gray-50 text-gray-500 font-medium">
+                              <tr>
+                                 <th className="px-4 py-3">Nome</th>
+                                 <th className="px-4 py-3">Função</th>
+                                 <th className="px-4 py-3 text-right">Ações</th>
+                              </tr>
+                           </thead>
+                           <tbody className="divide-y divide-gray-100">
+                              {allTeamUsers.map(user => (
+                                 <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-4 py-3">
+                                       <div className="font-medium text-gray-800">{user.name}</div>
+                                       <div className="text-xs text-gray-500">@{user.username}</div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                       <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase mr-2 ${user.role === 'leader' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'}`}>
+                                          {user.role === 'leader' ? 'Líder' : 'Membro'}
+                                       </span>
+                                       <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                                          <Briefcase className="w-3 h-3" /> {user.specialty}
+                                       </div>
+                                    </td>
+                                    <td className="px-4 py-3 text-right">
+                                       <button 
+                                          onClick={() => {
+                                             // Use window.confirm directly inside arrow function to prevent immediate execution
+                                             const confirmed = window.confirm(`Tem certeza que deseja remover ${user.name}?`);
+                                             if(confirmed) {
+                                                onRemoveMember(user.id);
+                                                addToast('Funcionário removido.', 'info');
+                                             }
+                                          }}
+                                          className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-full transition-colors"
+                                          title="Remover Funcionário"
+                                       >
+                                          <Trash2 className="w-4 h-4" />
+                                       </button>
+                                    </td>
+                                 </tr>
+                              ))}
+                           </tbody>
+                        </table>
+                      )}
+                   </div>
+                </div>
+             </div>
+          </div>
         )}
 
         {activeTab === 'comms' && (

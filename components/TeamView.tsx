@@ -13,7 +13,6 @@ interface TeamViewProps {
   onLogout: () => void;
   instructions: TeamInstruction[];
   onAddInstruction: (msg: string) => void;
-  onRegisterMember: (user: TeamUser) => void;
   addToast: (msg: string, type: 'success' | 'error' | 'info') => void;
   broadcasts: BroadcastMessage[];
 }
@@ -27,7 +26,6 @@ export const TeamView: React.FC<TeamViewProps> = ({
   onLogout,
   instructions,
   onAddInstruction,
-  onRegisterMember,
   addToast,
   broadcasts
 }) => {
@@ -36,13 +34,8 @@ export const TeamView: React.FC<TeamViewProps> = ({
   const [password, setPassword] = useState('');
   
   // Leader View State
-  const [activeTab, setActiveTab] = useState<'tasks' | 'broadcast' | 'team'>('tasks');
+  const [activeTab, setActiveTab] = useState<'tasks' | 'broadcast'>('tasks');
   const [newInstruction, setNewInstruction] = useState('');
-  
-  // Register Member State
-  const [newMemberName, setNewMemberName] = useState('');
-  const [newMemberUser, setNewMemberUser] = useState('');
-  const [newMemberPass, setNewMemberPass] = useState('');
 
   // Filter Broadcasts for Teams
   const teamBroadcasts = broadcasts.filter(b => b.target === 'teams' || b.target === 'all');
@@ -72,26 +65,6 @@ export const TeamView: React.FC<TeamViewProps> = ({
       setNewInstruction('');
       addToast('Orientação enviada para a equipe!', 'success');
     }
-  };
-
-  const handleRegisterMember = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentUser || currentUser.role !== 'leader') return;
-
-    const newUser: TeamUser = {
-      id: Date.now().toString(),
-      name: newMemberName,
-      username: newMemberUser,
-      password: newMemberPass,
-      role: 'member',
-      specialty: currentUser.specialty // Auto-assign leader's specialty
-    };
-
-    onRegisterMember(newUser);
-    setNewMemberName('');
-    setNewMemberUser('');
-    setNewMemberPass('');
-    addToast(`Funcionário ${newUser.name} cadastrado com sucesso!`, 'success');
   };
 
   // --- LOGIN SCREEN ---
@@ -194,7 +167,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
             </div>
             
             <p className="text-xs text-center text-gray-400 mt-4 px-4">
-              Nota: Novos funcionários só podem ser cadastrados através do painel de um Líder.
+              Nota: O cadastro de funcionários é gerido exclusivamente pela Prefeitura.
             </p>
           </div>
         </div>
@@ -255,13 +228,6 @@ export const TeamView: React.FC<TeamViewProps> = ({
                ${activeTab === 'broadcast' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
            >
              <Megaphone className="w-4 h-4" /> Comunicados
-           </button>
-           <button 
-             onClick={() => setActiveTab('team')}
-             className={`pb-3 px-6 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap
-               ${activeTab === 'team' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-           >
-             <Users className="w-4 h-4" /> Gestão de Equipe
            </button>
         </div>
 
@@ -347,77 +313,6 @@ export const TeamView: React.FC<TeamViewProps> = ({
                            <span className="text-xs text-gray-400">{inst.timestamp.toLocaleString()}</span>
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
-             </div>
-          </div>
-        )}
-
-        {activeTab === 'team' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-             {/* Register */}
-             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 className="font-bold text-gray-800 mb-4 flex items-center">
-                  <UserPlus className="w-5 h-5 mr-2 text-indigo-600" />
-                  Cadastrar Funcionário
-                </h3>
-                <form onSubmit={handleRegisterMember} className="space-y-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 uppercase">Nome do Funcionário</label>
-                    <input 
-                      type="text" required
-                      className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 mt-1"
-                      value={newMemberName} onChange={e => setNewMemberName(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-gray-500 uppercase">Login</label>
-                      <input 
-                        type="text" required
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 mt-1"
-                        value={newMemberUser} onChange={e => setNewMemberUser(e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-gray-500 uppercase">Senha</label>
-                      <input 
-                        type="text" required
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 mt-1"
-                        value={newMemberPass} onChange={e => setNewMemberPass(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="bg-indigo-50 p-3 rounded text-xs text-indigo-700">
-                    * O funcionário será automaticamente vinculado à especialidade: <strong>{currentUser.specialty}</strong>
-                  </div>
-                  <Button type="submit" fullWidth variant="primary" className="bg-indigo-600 hover:bg-indigo-700">
-                    Cadastrar
-                  </Button>
-                </form>
-             </div>
-
-             {/* List */}
-             <div>
-                <h3 className="font-bold text-gray-800 mb-4">Membros Ativos ({myTeamMembers.length})</h3>
-                <div className="space-y-3">
-                  {myTeamMembers.length === 0 ? (
-                    <p className="text-gray-400 text-sm">Nenhum membro cadastrado nesta equipe.</p>
-                  ) : (
-                    myTeamMembers.map(member => (
-                       <div key={member.id} className="bg-white p-4 rounded-lg border border-gray-200 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                             <div className="bg-gray-100 p-2 rounded-full">
-                                <UserCircle className="w-6 h-6 text-gray-500" />
-                             </div>
-                             <div>
-                                <p className="font-bold text-gray-800">{member.name}</p>
-                                <p className="text-xs text-gray-500">@{member.username}</p>
-                             </div>
-                          </div>
-                          <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">Membro</span>
-                       </div>
                     ))
                   )}
                 </div>
