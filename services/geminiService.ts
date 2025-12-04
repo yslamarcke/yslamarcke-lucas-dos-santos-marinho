@@ -1,7 +1,9 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { SystemConfig } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Safe initialization to prevent crash if process is undefined in browser
+const apiKey = (typeof process !== 'undefined' && process.env) ? process.env.API_KEY : '';
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 export interface AnalysisResult {
   category: string;
@@ -52,6 +54,8 @@ export const analyzeReport = async (description: string): Promise<AnalysisResult
   };
 
   try {
+    if (!apiKey) throw new Error("API Key not found");
+    
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: `Analyze this urban maintenance report from a citizen: "${description}". Classify it responsibly.`,
@@ -93,6 +97,8 @@ export const generateSystemUpdate = async (command: string, currentConfig: Syste
   };
 
   try {
+    if (!apiKey) throw new Error("API Key not found");
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: `Current System State: ${JSON.stringify(currentConfig)}. 

@@ -1,20 +1,66 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# ZelaPB - Sistema de Gestão Urbana Inteligente
 
-# Run and deploy your AI Studio app
+O **ZelaPB** é uma plataforma Progressive Web App (PWA) desenvolvida para conectar cidadãos, equipes de limpeza urbana e prefeituras, utilizando Inteligência Artificial para classificar e priorizar demandas.
 
-This contains everything you need to run your app locally.
+## 🚀 Tecnologias
 
-View your app in AI Studio: https://ai.studio/apps/drive/1LtlNOAGPAP_lhqeRAoobaRAw7Oog1gpB
+- **Frontend**: React 19, TypeScript
+- **Estilização**: Tailwind CSS
+- **IA**: Google Gemini 2.5 Flash (via @google/genai)
+- **Gráficos**: Recharts
+- **Ícones**: Lucide React
 
-## Run Locally
+## 📦 Como Rodar Localmente
 
-**Prerequisites:**  Node.js
+Siga os passos abaixo para rodar este projeto no seu computador (VS Code):
 
+### 1. Pré-requisitos
+Certifique-se de ter o [Node.js](https://nodejs.org/) instalado.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 2. Criar o Projeto
+Recomendamos usar Vite para iniciar:
+
+```bash
+npm create vite@latest zelapb -- --template react-ts
+cd zelapb
+```
+
+### 3. Instalar Dependências
+Copie o conteúdo do arquivo `package.json` fornecido ou instale manualmente:
+
+```bash
+npm install react react-dom @google/genai recharts lucide-react
+npm install -D tailwindcss postcss autoprefixer
+```
+
+### 4. Configurar Tailwind
+Inicialize o Tailwind:
+```bash
+npx tailwindcss init -p
+```
+Configure o `tailwind.config.js` para procurar arquivos no `./src`.
+
+### 5. Copiar os Arquivos
+Copie todos os arquivos `.tsx` e `.ts` deste projeto para a pasta `src/` do seu projeto local.
+
+### 6. Configurar API Key
+Crie um arquivo `.env` na raiz do projeto e adicione sua chave do Google Gemini:
+```env
+VITE_API_KEY=sua_chave_aqui
+```
+*Nota: No código, substitua `process.env.API_KEY` por `import.meta.env.VITE_API_KEY` se usar Vite.*
+
+### 7. Rodar
+```bash
+npm run dev
+```
+
+## 📱 Funcionalidades
+
+1.  **App do Cidadão**: Denúncias com foto, geolocalização e análise de IA.
+2.  **App da Equipe**: Recebimento de tarefas, rotas e comunicação com líderes.
+3.  **Painel da Prefeitura**: Dashboard de BI, gestão de contratos e monitoramento em tempo real.
+4.  **Painel do Criador (Admin)**: Gestão SaaS, deploy de configurações e controle financeiro.
+
+---
+Desenvolvido por Yslamarcke Lucas dos Santos Marinho © 2025
