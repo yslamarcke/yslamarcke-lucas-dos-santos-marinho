@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Report, TeamUser, TeamInstruction, BroadcastMessage } from '../types';
 import { Button } from './Button';
-import { Map, CheckSquare, Clock, Shield, LogOut, Megaphone, Bell, UserCircle, Users, UserPlus, ClipboardList, ArrowRight, Lock, Briefcase, AlertTriangle } from 'lucide-react';
+import { Shield, LogOut, Megaphone, Bell, UserCircle, Briefcase, CheckSquare, Clock, Map, ArrowRight } from 'lucide-react';
 
 interface TeamViewProps {
   reports: Report[];
@@ -29,15 +29,11 @@ export const TeamView: React.FC<TeamViewProps> = ({
   addToast,
   broadcasts
 }) => {
-  // Login State
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
-  // Leader View State
   const [activeTab, setActiveTab] = useState<'tasks' | 'broadcast'>('tasks');
   const [newInstruction, setNewInstruction] = useState('');
 
-  // Filter Broadcasts for Teams
   const teamBroadcasts = broadcasts.filter(b => b.target === 'teams' || b.target === 'all');
 
   const handleLogin = (e: React.FormEvent) => {
@@ -49,21 +45,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
       setPassword('');
       addToast(`Bem-vindo, ${user.name}`, 'success');
     } else {
-      addToast('Credenciais inválidas. Verifique usuário e senha.', 'error');
-    }
-  };
-
-  const quickFill = (u: string, p: string) => {
-    setUsername(u);
-    setPassword(p);
-  };
-
-  const handlePostInstruction = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newInstruction.trim()) {
-      onAddInstruction(newInstruction);
-      setNewInstruction('');
-      addToast('Orientação enviada para a equipe!', 'success');
+      addToast('Credenciais inválidas.', 'error');
     }
   };
 
@@ -71,418 +53,148 @@ export const TeamView: React.FC<TeamViewProps> = ({
   if (!currentUser) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 py-8">
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-t-4 border-emerald-600">
+        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-t-4 border-amber-600">
           <div className="flex justify-center mb-6">
-            <div className="bg-emerald-100 p-4 rounded-full">
-               <Shield className="w-8 h-8 text-emerald-600" />
+            <div className="bg-amber-100 p-4 rounded-full">
+               <Briefcase className="w-8 h-8 text-amber-600" />
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Acesso da Equipe</h2>
-          <p className="text-center text-gray-500 mb-6">Área restrita para Líderes e Funcionários.</p>
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Equipes da Prefeitura</h2>
+          <p className="text-center text-gray-500 mb-6">Área restrita operacional.</p>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                <UserCircle className="w-4 h-4" /> Usuário
-              </label>
-              <input 
-                type="text" 
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 mt-1"
-                placeholder="Ex: lider.limpeza"
-              />
+              <label className="text-sm font-medium text-gray-700">Usuário</label>
+              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full p-3 border rounded-lg mt-1" />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                <Lock className="w-4 h-4" /> Senha
-              </label>
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 mt-1"
-                placeholder="****"
-              />
+              <label className="text-sm font-medium text-gray-700">Senha</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border rounded-lg mt-1" />
             </div>
-            <Button type="submit" fullWidth size="lg">Entrar no Sistema</Button>
+            <Button type="submit" fullWidth size="lg">Acessar</Button>
           </form>
 
-          {/* Quick Access Section */}
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider text-center mb-4">
-              Acesso Rápido (Ambiente de Teste)
-            </p>
-            <div className="space-y-2">
-              <button 
-                type="button"
-                onClick={() => quickFill('lider.limpeza', '1234')}
-                className="w-full p-3 bg-indigo-50 hover:bg-indigo-100 rounded-lg flex items-center justify-between transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                   <div className="bg-indigo-200 p-1.5 rounded">
-                      <Briefcase className="w-4 h-4 text-indigo-700" />
-                   </div>
-                   <div className="text-left">
-                     <p className="text-sm font-bold text-indigo-900">Líder Limpeza</p>
-                     <p className="text-xs text-indigo-600">lider.limpeza</p>
-                   </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-indigo-400 group-hover:text-indigo-600" />
-              </button>
-
-              <button 
-                type="button"
-                onClick={() => quickFill('lider.infra', '1234')}
-                className="w-full p-3 bg-sky-50 hover:bg-sky-100 rounded-lg flex items-center justify-between transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                   <div className="bg-sky-200 p-1.5 rounded">
-                      <Briefcase className="w-4 h-4 text-sky-700" />
-                   </div>
-                   <div className="text-left">
-                     <p className="text-sm font-bold text-sky-900">Líder Infraestrutura</p>
-                     <p className="text-xs text-sky-600">lider.infra</p>
-                   </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-sky-400 group-hover:text-sky-600" />
-              </button>
-
-              <button 
-                type="button"
-                onClick={() => quickFill('jose', '1234')}
-                className="w-full p-3 bg-gray-50 hover:bg-gray-100 rounded-lg flex items-center justify-between transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                   <div className="bg-gray-200 p-1.5 rounded">
-                      <UserCircle className="w-4 h-4 text-gray-700" />
-                   </div>
-                   <div className="text-left">
-                     <p className="text-sm font-bold text-gray-900">Funcionário (Membro)</p>
-                     <p className="text-xs text-gray-600">jose</p>
-                   </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-              </button>
-            </div>
-            
-            <p className="text-xs text-center text-gray-400 mt-4 px-4">
-              Nota: O cadastro de funcionários é gerido exclusivamente pela Prefeitura.
-            </p>
+          <div className="mt-8 space-y-2">
+             <button onClick={() => {setUsername('lider.limpeza'); setPassword('1234')}} className="w-full p-2 bg-gray-50 text-xs flex justify-between rounded hover:bg-gray-100">
+                <span>Líder Limpeza</span> <ArrowRight className="w-3 h-3"/>
+             </button>
+             <button onClick={() => {setUsername('lider.agua'); setPassword('1234')}} className="w-full p-2 bg-blue-50 text-xs flex justify-between rounded hover:bg-blue-100 text-blue-800">
+                <span>Líder SAAE (Água)</span> <ArrowRight className="w-3 h-3"/>
+             </button>
+             <button onClick={() => {setUsername('jose'); setPassword('1234')}} className="w-full p-2 bg-gray-50 text-xs flex justify-between rounded hover:bg-gray-100">
+                <span>Funcionário (Membro)</span> <ArrowRight className="w-3 h-3"/>
+             </button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Filter data
-  const mySpecialtyReports = reports.filter(r => 
-    r.status !== 'resolved' && 
-    (r.category === currentUser.specialty || currentUser.specialty === 'Geral')
-  );
-  
-  const myTeamMembers = allUsers.filter(u => 
-    u.specialty === currentUser.specialty && u.role === 'member'
-  );
-
+  // Filter Reports by Specialty (STRICT SILO)
+  const mySpecialtyReports = reports.filter(r => r.category === currentUser.specialty && r.status !== 'resolved');
   const myInstructions = instructions.filter(i => i.specialty === currentUser.specialty);
 
-  // --- LEADER DASHBOARD ---
-  if (currentUser.role === 'leader') {
-    return (
-      <div className="max-w-6xl mx-auto p-4">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-xl shadow-sm border border-indigo-100">
-          <div className="flex items-center gap-4 mb-4 md:mb-0">
-            <div className="p-4 rounded-full bg-indigo-100 text-indigo-700">
-               <Shield className="w-8 h-8" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Painel do Líder</h2>
-              <p className="text-indigo-600 font-medium">{currentUser.specialty}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-             <div className="text-right mr-2 hidden md:block">
-                <p className="text-sm font-bold text-gray-900">{currentUser.name}</p>
-                <p className="text-xs text-gray-500">ID: {currentUser.id}</p>
-             </div>
-             <Button variant="outline" size="sm" onClick={onLogout}>
-              <LogOut className="w-4 h-4 mr-2" /> Sair
-             </Button>
-          </div>
-        </div>
-
-        {/* Leader Tabs */}
-        <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
-           <button 
-             onClick={() => setActiveTab('tasks')}
-             className={`pb-3 px-6 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap
-               ${activeTab === 'tasks' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-           >
-             <ClipboardList className="w-4 h-4" /> Monitoramento
-           </button>
-           <button 
-             onClick={() => setActiveTab('broadcast')}
-             className={`pb-3 px-6 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap
-               ${activeTab === 'broadcast' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-           >
-             <Megaphone className="w-4 h-4" /> Comunicados
-           </button>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'tasks' && (
-          <div className="space-y-6">
-             <div className="flex justify-between items-center">
-               <h3 className="text-xl font-bold text-gray-800">Tarefas Pendentes ({mySpecialtyReports.length})</h3>
-               <div className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
-                 Visualização de Supervisor
-               </div>
-             </div>
-             
-             {/* Task List (ReadOnly for Leader) */}
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {mySpecialtyReports.length === 0 ? (
-                  <p className="text-gray-500 italic col-span-2 text-center py-8">Nenhuma tarefa pendente para sua equipe.</p>
-                ) : (
-                  mySpecialtyReports.map(report => (
-                    <div key={report.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex gap-4">
-                      {report.imageUrl && <img src={report.imageUrl} className="w-20 h-20 object-cover rounded bg-gray-100" alt="img" />}
-                      <div className="flex-1">
-                         <div className="flex justify-between mb-1">
-                           <span className="font-bold text-gray-800">{report.aiAnalysis || report.category}</span>
-                           <span className={`text-xs px-2 py-0.5 rounded ${report.priority === 'High' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}>
-                             {report.priority}
-                           </span>
-                         </div>
-                         <p className="text-sm text-gray-600 line-clamp-2 mb-2">{report.description}</p>
-                         <div className="text-xs text-gray-400">
-                           {report.location} • {report.status === 'in_progress' ? 'Em andamento' : 'Pendente'}
-                         </div>
-                         <div className="mt-2 flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="text-xs py-1 h-8"
-                              onClick={() => {
-                                 onUpdateStatus(report.id, 'resolved');
-                                 addToast('Tarefa finalizada via painel do líder', 'success');
-                              }}
-                            >
-                               Finalizar
-                            </Button>
-                         </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-             </div>
-          </div>
-        )}
-
-        {activeTab === 'broadcast' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-             {/* Create */}
-             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 className="font-bold text-gray-800 mb-4">Nova Orientação</h3>
-                <form onSubmit={handlePostInstruction}>
-                  <textarea 
-                    className="w-full p-4 rounded-lg border border-gray-300 text-sm mb-4 focus:ring-2 focus:ring-indigo-500 h-32"
-                    placeholder={`Escreva uma mensagem para todos os membros de ${currentUser.specialty}...`}
-                    value={newInstruction}
-                    onChange={(e) => setNewInstruction(e.target.value)}
-                  />
-                  <Button type="submit" fullWidth variant="primary" className="bg-indigo-600 hover:bg-indigo-700">
-                    Enviar Comunicado
-                  </Button>
-                </form>
-             </div>
-             
-             {/* History */}
-             <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <h3 className="font-bold text-gray-800 mb-4">Histórico de Mensagens</h3>
-                <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                  {myInstructions.length === 0 ? (
-                    <p className="text-gray-400 text-sm">Nenhum comunicado enviado.</p>
-                  ) : (
-                    myInstructions.slice().reverse().map(inst => (
-                      <div key={inst.id} className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                        <p className="text-gray-800 text-sm">{inst.message}</p>
-                        <div className="text-right mt-2">
-                           <span className="text-xs text-gray-400">{inst.timestamp.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-             </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // --- MEMBER DASHBOARD ---
+  // --- LEADER & MEMBER DASHBOARD (Simplified Combined) ---
   return (
     <div className="max-w-6xl mx-auto p-4">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-        <div className="flex items-center gap-4 mb-4 md:mb-0">
-          <div className="p-3 rounded-full bg-emerald-100 text-emerald-700">
-             <UserCircle className="w-8 h-8" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{currentUser.name}</h2>
-            <p className="text-sm text-gray-500 font-medium">
-              Membro da Equipe • {currentUser.specialty}
-            </p>
-          </div>
+      <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+        <div className="flex items-center gap-4">
+           <div className={`p-3 rounded-full ${currentUser.role === 'leader' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>
+              <UserCircle className="w-8 h-8" />
+           </div>
+           <div>
+              <h2 className="text-xl font-bold text-gray-900">{currentUser.name}</h2>
+              <p className="text-sm text-gray-500">{currentUser.role === 'leader' ? 'Líder de Equipe' : 'Funcionário'} • Setor: {currentUser.specialty}</p>
+           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={onLogout}>
-          <LogOut className="w-4 h-4 mr-2" /> Sair
-        </Button>
+        <Button variant="outline" size="sm" onClick={onLogout}><LogOut className="w-4 h-4 mr-2" /> Sair</Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* LEFT COLUMN: Sidebar / Instructions */}
-        <div className="space-y-6">
-           {/* Notice Board */}
-           <div className="bg-amber-50 border border-amber-100 rounded-xl p-6">
-              <h3 className="font-bold text-amber-900 flex items-center mb-4">
-                <Bell className="w-5 h-5 mr-2" />
-                Quadro de Avisos
-              </h3>
-              
-              <div className="space-y-4">
-                 {/* Government Alerts */}
-                 {teamBroadcasts.map(bc => (
-                    <div key={bc.id} className={`p-3 rounded-lg shadow-sm border-l-4 ${bc.priority === 'Urgent' ? 'bg-red-50 border-red-500' : 'bg-white border-indigo-500'}`}>
-                       <div className="flex justify-between items-start mb-1">
-                          <span className={`text-xs font-bold uppercase ${bc.priority === 'Urgent' ? 'text-red-700' : 'text-indigo-700'}`}>
-                             {bc.senderName}
-                          </span>
-                       </div>
-                       <p className="text-gray-800 text-sm font-medium">{bc.title}</p>
-                       <p className="text-gray-600 text-xs mt-1">{bc.message}</p>
-                    </div>
-                 ))}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+         {/* LEFT: INFO & INSTRUCTIONS */}
+         <div className="space-y-6">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+               <h3 className="font-bold text-amber-900 mb-4 flex items-center"><Bell className="w-5 h-5 mr-2" /> Quadro de Avisos</h3>
+               {teamBroadcasts.map(bc => (
+                  <div key={bc.id} className="bg-white p-3 rounded-lg shadow-sm mb-2 border-l-4 border-red-500">
+                     <p className="font-bold text-xs uppercase text-red-500">{bc.senderName}</p>
+                     <p className="text-sm">{bc.message}</p>
+                  </div>
+               ))}
+               {myInstructions.map(i => (
+                  <div key={i.id} className="bg-white p-3 rounded-lg shadow-sm mb-2 border-l-4 border-amber-500">
+                     <p className="font-bold text-xs uppercase text-amber-600">Líder da Equipe</p>
+                     <p className="text-sm">{i.message}</p>
+                  </div>
+               ))}
+               {teamBroadcasts.length === 0 && myInstructions.length === 0 && <p className="text-sm text-amber-700/50">Nenhum aviso.</p>}
+            </div>
 
-                 {/* Leader Instructions */}
-                 {myInstructions.length === 0 && teamBroadcasts.length === 0 ? (
-                    <p className="text-amber-700/50 text-sm italic">Nenhum aviso no momento.</p>
-                 ) : (
-                    myInstructions.slice().reverse().map(inst => (
-                      <div key={inst.id} className="bg-white p-3 rounded-lg shadow-sm border-l-4 border-amber-400">
-                        <p className="text-gray-800 text-sm mb-2">{inst.message}</p>
-                        <div className="flex justify-between items-center text-xs text-gray-500">
-                          <span className="font-medium">{inst.leaderName}</span>
-                          <span>{inst.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                        </div>
-                      </div>
-                    ))
-                 )}
-              </div>
-           </div>
-        </div>
-
-        {/* RIGHT COLUMN: Tasks */}
-        <div className="lg:col-span-2">
-           <div className="flex justify-between items-center mb-6">
-             <h3 className="text-xl font-bold text-gray-800">
-               Tarefas de {currentUser.specialty}
-             </h3>
-             <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-medium">
-               {mySpecialtyReports.length} pendentes
-             </span>
-           </div>
-
-           {/* Map Placeholder */}
-           <div className="bg-slate-200 rounded-2xl h-48 w-full flex items-center justify-center relative overflow-hidden shadow-inner mb-6">
-              <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: "url('https://picsum.photos/800/600?grayscale')" }}></div>
-              <div className="relative z-10 text-slate-600 flex flex-col items-center bg-white/80 p-4 rounded-xl backdrop-blur-sm">
-                <Map className="w-8 h-8 mb-2 text-emerald-600" />
-                <span className="font-bold text-sm">Rota Otimizada para {currentUser.specialty}</span>
-              </div>
-           </div>
-
-           <div className="space-y-4">
-             {mySpecialtyReports.length === 0 ? (
-               <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-                 <CheckSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                 <p className="text-gray-500">Tudo limpo! Nenhuma tarefa pendente.</p>
+            {currentUser.role === 'leader' && (
+               <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="font-bold text-gray-800 mb-2">Enviar Orientação</h3>
+                  <textarea 
+                     className="w-full border rounded p-2 text-sm mb-2" 
+                     rows={3}
+                     placeholder="Mensagem para sua equipe..."
+                     value={newInstruction}
+                     onChange={e => setNewInstruction(e.target.value)}
+                  />
+                  <Button fullWidth onClick={() => {
+                     if(newInstruction) { onAddInstruction(newInstruction); setNewInstruction(''); addToast('Enviado', 'success'); }
+                  }}>Enviar</Button>
                </div>
-             ) : (
-               mySpecialtyReports.map(report => (
-                 <div key={report.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 transition-all hover:shadow-md flex flex-col md:flex-row gap-4">
-                   {/* Image Thumbnail */}
-                   <div className="w-full md:w-32 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
-                      {report.imageUrl ? (
-                        <img src={report.imageUrl} alt="Problema" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">Sem foto</div>
-                      )}
-                   </div>
+            )}
+         </div>
 
-                   <div className="flex-1">
-                     <div className="flex justify-between items-start mb-2">
-                       <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wide 
-                         ${report.priority === 'High' ? 'bg-red-100 text-red-700' : 
-                           report.priority === 'Medium' ? 'bg-orange-100 text-orange-700' : 
-                           'bg-blue-100 text-blue-700'}`}>
-                         Prioridade {report.priority === 'High' ? 'Alta' : report.priority === 'Medium' ? 'Média' : 'Baixa'}
-                       </span>
-                       <span className="text-xs text-gray-400 flex items-center">
-                         <Clock className="w-3 h-3 mr-1" />
-                         {report.timestamp.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
-                       </span>
-                     </div>
-                     
-                     <h3 className="font-bold text-lg text-gray-800 mb-1">{report.aiAnalysis || report.category}</h3>
-                     <p className="text-gray-600 text-sm mb-3">{report.description}</p>
-                     
-                     <div className="text-sm text-gray-500 mb-2">
-                        <strong>Local:</strong> {report.location}
-                     </div>
-                     {report.citizenName && (
-                       <div className="text-xs text-gray-400 mb-4">
-                          Solicitado por: {report.citizenName} {report.contactPhone && `(${report.contactPhone})`}
-                       </div>
-                     )}
+         {/* RIGHT: TASKS */}
+         <div className="lg:col-span-2">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+               <CheckSquare className="w-5 h-5 mr-2" /> Tarefas do Setor: {currentUser.specialty}
+            </h3>
+            
+            <div className="space-y-4">
+               {mySpecialtyReports.length === 0 ? (
+                  <div className="text-center py-10 bg-white rounded-xl border border-dashed border-gray-300">
+                     <p className="text-gray-500">Nenhuma solicitação pendente para este setor.</p>
+                  </div>
+               ) : (
+                  mySpecialtyReports.map(report => (
+                     <div key={report.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row gap-4">
+                        <div className="w-full md:w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                           {report.imageUrl ? <img src={report.imageUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400">Sem Foto</div>}
+                        </div>
+                        <div className="flex-1">
+                           <div className="flex justify-between mb-2">
+                              <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${report.priority === 'High' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>{report.priority} Priority</span>
+                              <span className="text-xs text-gray-500 flex items-center"><Clock className="w-3 h-3 mr-1" /> {report.timestamp.toLocaleDateString()}</span>
+                           </div>
+                           <h4 className="font-bold text-lg text-gray-800">{report.category}</h4>
+                           <p className="text-gray-600 text-sm mb-2">{report.description}</p>
+                           <p className="text-xs text-gray-500 mb-4 flex items-center gap-1"><Map className="w-3 h-3" /> {report.location}, nº {report.addressNumber || 'S/N'}</p>
+                           
+                           {report.citizenName && (
+                              <div className="flex items-center gap-2 mb-4 p-2 bg-gray-50 rounded">
+                                 <div className="w-6 h-6 rounded-full bg-gray-300 overflow-hidden">
+                                    {report.citizenPhoto ? <img src={report.citizenPhoto} className="w-full h-full object-cover"/> : null}
+                                 </div>
+                                 <span className="text-xs text-gray-600">Solicitado por: <strong>{report.citizenName}</strong></span>
+                              </div>
+                           )}
 
-                     <div className="flex gap-2 mt-auto">
-                       {report.status === 'pending' && (
-                         <Button 
-                           variant="secondary" 
-                           size="sm" 
-                           className="flex-1"
-                           onClick={() => {
-                             onUpdateStatus(report.id, 'in_progress');
-                             addToast('Tarefa iniciada', 'info');
-                           }}
-                         >
-                           Iniciar
-                         </Button>
-                       )}
-                       <Button 
-                         variant="primary" 
-                         size="sm" 
-                         className="flex-1"
-                         onClick={() => {
-                           onUpdateStatus(report.id, 'resolved');
-                           addToast('Tarefa concluída com sucesso!', 'success');
-                         }}
-                       >
-                         Concluir
-                       </Button>
+                           <div className="flex gap-2">
+                              {report.status === 'pending' && (
+                                 <Button variant="secondary" size="sm" onClick={() => { onUpdateStatus(report.id, 'in_progress'); addToast('Iniciado', 'info'); }}>Iniciar</Button>
+                              )}
+                              <Button size="sm" onClick={() => { onUpdateStatus(report.id, 'resolved'); addToast('Concluído!', 'success'); }}>Concluir</Button>
+                           </div>
+                        </div>
                      </div>
-                   </div>
-                 </div>
-               ))
-             )}
-           </div>
-        </div>
+                  ))
+               )}
+            </div>
+         </div>
       </div>
-    );
-  }
+    </div>
+  );
 };

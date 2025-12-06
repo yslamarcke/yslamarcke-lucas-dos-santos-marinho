@@ -7,41 +7,55 @@ export const YEAR = 2025;
 
 export const DEFAULT_CONFIG: SystemConfig = {
   appName: "ZelaPB",
-  appSlogan: "Transformando denúncias em soluções.",
+  appSlogan: "Transformando solicitações em soluções.",
   version: "1.0.0",
   maintenanceMode: false,
   allowRegistrations: true,
   primaryColorName: "Emerald Green"
 };
 
+export const GAMIFICATION_LEVELS = [
+  { level: 1, name: "Cidadão Iniciante", minPoints: 0 },
+  { level: 2, name: "Cidadão Atento", minPoints: 100 },
+  { level: 3, name: "Fiscal do Bairro", minPoints: 300 },
+  { level: 4, name: "Guardião da Cidade", minPoints: 600 },
+  { level: 5, name: "Prefeito Honorário", minPoints: 1000 },
+];
+
 export const INITIAL_REPORTS: Report[] = [
   {
     id: '1',
-    description: 'Lixo acumulado na praça central perto do banco.',
-    category: 'Limpeza Urbana',
+    description: 'Vazamento de água limpa na rua principal.',
+    category: 'Saneamento', // Vai pro SAAE
     priority: 'High',
     status: 'pending',
-    location: 'Praça da Matriz',
+    location: 'Rua Pedro I',
+    addressNumber: '45',
+    coordinates: { x: 30, y: 40 },
     citizenName: 'João Silva',
     timestamp: new Date('2025-05-10T10:00:00'),
   },
   {
     id: '2',
-    description: 'Buraco na calçada dificultando passagem de pedestres.',
-    category: 'Infraestrutura',
+    description: 'Buraco enorme impedindo passagem de carros.',
+    category: 'Infraestrutura', // Vai pra Obras
     priority: 'Medium',
     status: 'in_progress',
-    location: 'Rua das Flores, 120',
+    location: 'Rua das Flores',
+    addressNumber: '120',
+    coordinates: { x: 60, y: 20 },
     citizenName: 'Maria Oliveira',
     timestamp: new Date('2025-05-11T14:30:00'),
   },
   {
     id: '3',
-    description: 'Lâmpada do poste queimada.',
-    category: 'Iluminação',
+    description: 'Lâmpada do poste queimada há 3 dias.',
+    category: 'Iluminação', // Vai pra Iluminação
     priority: 'Low',
     status: 'resolved',
-    location: 'Av. Brasil, 500',
+    location: 'Av. Brasil',
+    addressNumber: '500',
+    coordinates: { x: 80, y: 70 },
     citizenName: 'Carlos Souza',
     timestamp: new Date('2025-05-09T09:15:00'),
   }
@@ -49,16 +63,18 @@ export const INITIAL_REPORTS: Report[] = [
 
 export const MOCK_TEAM_USERS: TeamUser[] = [
   { id: 'l1', name: 'Roberto (Líder Limpeza)', username: 'lider.limpeza', role: 'leader', specialty: 'Limpeza Urbana' },
-  { id: 'l2', name: 'Ana (Líder Infra)', username: 'lider.infra', role: 'leader', specialty: 'Infraestrutura' },
+  { id: 'l2', name: 'Ana (Líder Obras)', username: 'lider.infra', role: 'leader', specialty: 'Infraestrutura' },
   { id: 'l3', name: 'Carlos (Líder Luz)', username: 'lider.luz', role: 'leader', specialty: 'Iluminação' },
-  { id: 'm1', name: 'José (Limpeza)', username: 'jose', role: 'member', specialty: 'Limpeza Urbana' },
-  { id: 'm2', name: 'Marcos (Infra)', username: 'marcos', role: 'member', specialty: 'Infraestrutura' },
-  { id: 'm3', name: 'Paula (Luz)', username: 'paula', role: 'member', specialty: 'Iluminação' },
+  { id: 'l4', name: 'Marcos (Líder SAAE)', username: 'lider.agua', role: 'leader', specialty: 'Saneamento' },
+  { id: 'm1', name: 'José (Gari)', username: 'jose', role: 'member', specialty: 'Limpeza Urbana' },
+  { id: 'm4', name: 'Pedro (Encanador)', username: 'pedro', role: 'member', specialty: 'Saneamento' },
 ];
 
 export const MOCK_GOV_USERS: GovernmentUser[] = [
   { id: 'g1', name: 'Prefeito João', username: 'prefeito', role: 'mayor', department: 'Gabinete' },
-  { id: 'g2', name: 'Sec. Maria', username: 'secretaria', role: 'secretary', department: 'Obras Públicas' },
+  { id: 'g2', name: 'Sec. Maria (Obras)', username: 'sec.obras', role: 'secretary', department: 'Infraestrutura' },
+  { id: 'g3', name: 'Sec. Roberto (SAAE)', username: 'sec.agua', role: 'secretary', department: 'Saneamento' },
+  { id: 'g4', name: 'Sec. Luzia (Iluminação)', username: 'sec.luz', role: 'secretary', department: 'Iluminação' },
 ];
 
 export const MOCK_ADMIN: AdminUser = {
@@ -92,7 +108,7 @@ export const INITIAL_MUNICIPALITIES: Municipality[] = [
     name: 'Patos',
     mayorName: 'Nabor Wanderley',
     contractValue: 5000,
-    status: 'blocked', // Exemplo de inadimplente
+    status: 'blocked',
     joinedDate: new Date('2024-03-01'),
     nextPaymentDate: new Date('2025-05-01')
   },
@@ -128,14 +144,4 @@ export const INITIAL_BROADCASTS: BroadcastMessage[] = [
     timestamp: new Date('2025-05-12T08:00:00'),
     priority: 'Normal'
   },
-  {
-    id: 'b2',
-    senderName: 'Defesa Civil',
-    senderRole: 'Emergência',
-    target: 'teams',
-    title: 'Alerta de Tempestade',
-    message: 'Equipes de Infraestrutura e Limpeza: fiquem em alerta para possíveis quedas de árvores esta noite.',
-    timestamp: new Date('2025-05-12T18:00:00'),
-    priority: 'Urgent'
-  }
 ];

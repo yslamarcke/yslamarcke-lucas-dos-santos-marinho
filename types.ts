@@ -3,7 +3,10 @@ export type UserRole = 'citizen' | 'team' | 'government' | 'landing' | 'admin';
 
 export type ReportStatus = 'pending' | 'in_progress' | 'resolved';
 
-export type TeamSpecialty = 'Limpeza Urbana' | 'Infraestrutura' | 'Iluminação' | 'Geral';
+// Departamentos Estritos para Roteamento
+export type Department = 'Limpeza Urbana' | 'Infraestrutura' | 'Iluminação' | 'Saneamento';
+
+export type TeamSpecialty = Department | 'Geral';
 
 export interface SystemConfig {
   appName: string;
@@ -11,14 +14,20 @@ export interface SystemConfig {
   version: string;
   maintenanceMode: boolean;
   allowRegistrations: boolean;
-  primaryColorName: string; // Just for label, logic handles css classes
+  primaryColorName: string;
 }
 
 export interface CitizenProfile {
+  id: string;
   name: string;
+  age: string;
+  photoUrl?: string; // Foto de identificação
   phone: string;
   neighborhood: string;
   street: string;
+  number: string;
+  points: number;
+  level: number;
 }
 
 export interface TeamUser {
@@ -36,7 +45,7 @@ export interface GovernmentUser {
   username: string;
   password?: string;
   role: 'mayor' | 'secretary';
-  department: string;
+  department: Department | 'Gabinete'; // Gabinete vê tudo, Secretário só vê seu setor
 }
 
 export interface AdminUser {
@@ -48,9 +57,9 @@ export interface AdminUser {
 
 export interface Municipality {
   id: string;
-  name: string; // Ex: João Pessoa
+  name: string;
   mayorName: string;
-  contractValue: number; // Ex: 5000
+  contractValue: number;
   status: 'active' | 'blocked' | 'pending';
   joinedDate: Date;
   nextPaymentDate: Date;
@@ -67,7 +76,7 @@ export interface TeamInstruction {
 export interface BroadcastMessage {
   id: string;
   senderName: string;
-  senderRole: string; // "Prefeitura", "Defesa Civil"
+  senderRole: string;
   target: 'citizens' | 'teams' | 'all';
   title: string;
   message: string;
@@ -78,12 +87,15 @@ export interface BroadcastMessage {
 export interface Report {
   id: string;
   description: string;
-  category: string;
+  category: Department; // Roteamento obrigatório
   priority: 'Low' | 'Medium' | 'High';
   status: ReportStatus;
   location: string;
+  coordinates?: { x: number, y: number }; // Para o mapa interativo
   citizenName?: string;
+  citizenPhoto?: string;
   contactPhone?: string;
+  addressNumber?: string;
   timestamp: Date;
   imageUrl?: string;
   aiAnalysis?: string;
@@ -100,4 +112,10 @@ export interface ToastMessage {
   id: string;
   type: 'success' | 'error' | 'info';
   message: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'bot';
+  text: string;
 }
